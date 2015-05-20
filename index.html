@@ -1,0 +1,544 @@
+﻿<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>PROYECTO FINAL</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width">
+        
+        <link rel="stylesheet" href="css/jquery.mobile-1.4.5.min.css" />
+<script src="js/jquery.min.js"></script>
+<script src="js/jquery.mobile-1.4.5.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function inicio(){
+       
+     
+     var btnGuardar=$("#guardar");
+     btnGuardar.click(function guardar(){
+         var nom=$("#nombre").val();
+         var muni=$("#municipio").val();
+         var dire=$("#direccion").val();
+         var gir=$("#giro").val();
+         var foto=$("#fotografia").val();
+         var alt=$("#altitud").val();
+         var lat=$("#latitud").val();
+         
+         $.ajax({
+             type:"POST",
+             url:"http://martha13valadez.260mb.net/guardarDatos.php",
+             data:"nombre="+nom+"&municipio="+muni+"&direccion="+dire+"&giro="+gir+"&fotografia="+foto+"&altitud="+alt+"&latitud="+lat,
+             success:registro
+             
+         });
+    function registro(datos){
+        alert(datos);
+    }
+     });
+     var btnConsulta=$("#consultar");//kkdhgfffd
+     btnConsulta.click(function cons(){
+         $.ajax({
+             type:"POST",
+             url:"http://martha13valadez.260mb.net/consultaBD.php",
+             data:"",
+             success:consultaDatos
+         });
+         function consultaDatos(datos){
+             var respDatos=$.parseJSON(datos);
+             //alert(datos);
+              var respuesta=$("#resconsulta");
+              dibujarTabla(respuesta,respDatos);
+              
+         }
+         
+     });
+     function dibujarTabla(respuesta,respDatos){
+     respuesta.html("");
+              respuesta.append('<table id="tab" border="1">');
+              var tabla=$("#tab");
+              tabla.html("<tr><th> ID</th><th>Nombre</th><th>Municipio</th><th>Direccion</th><th>Giro</th><th>Fotografia</th><th>Altitud</th><th>Latitud</th></tr>");
+              for(var i in respDatos){
+                  tabla.append("<tr><td>"+respDatos[i].id+"</td>"
+                 +"<td>"+respDatos[i].Nombre+"</td>"
+                 +"<td>"+respDatos[i].Municipio+"</td>"
+                 +"<td>"+respDatos[i].Direccion+"</td>"
+                 +"<td>"+respDatos[i].Giro+"</td>"
+                 +"<td>"+respDatos[i].Fotografia+"</td>"
+                 +"<td>"+respDatos[i].Altitud+"</td>"
+                 +"<td>"+respDatos[i].Latitud+"</td></tr>");
+              }
+              tabla.append("</table>");
+          }
+     
+     var consultar2=$("#consultar2");
+     consultar2.click(function cons2(){
+      var valConsulta=$("#valConsulta").val();
+      $.ajax({
+          type:"POST",
+          url:"http://martha13valadez.260mb.net/consultaBD2.php",
+          data:"Id="+valConsulta,
+          success:consultaNegocio
+          
+      });
+        function consultaNegocio(datos){
+             var respDatos2=$.parseJSON(datos);
+             //alert(datos);
+              var respuesta2=$("#resconsulta2");
+              dibujarTabla(respuesta2,respDatos2);
+              
+        } 
+     });
+    var btnConAct=$("#btnConAct");
+    btnConAct.click(function cargarDat(){
+     $.ajax({
+             type:"POST",
+             url:"http://martha13valadez.260mb.net/consultaBD.php",
+             data:"",
+             success:cargarDatos
+         }); 
+         function cargarDatos(datos){
+             var respCarga=$.parseJSON(datos);
+             var respConAct=$("#respConAct");
+             dibujarTabla(respConAct,respCarga);
+         }
+    });
+     var btnCarDatos=$("#btnCarDatos");
+     btnCarDatos.click(function cargarInf(){
+         var Id=parseInt($("#nomActualizar").val());
+         $.ajax({
+             type:"POST",
+             url:"http://martha13valadez.260mb.net/consultaBD2.php",
+             data:"Id="+Id,
+             success:cargarDatosAct
+             
+         });
+         function cargarDatosAct(datos){
+             var consDatAct=$.parseJSON(datos);
+             var respCargDatos=$("#respCargDatos");
+             respCargDatos.html("<label>ID:</label><input type='text' id='Id' disabled='yes'>");
+             respCargDatos.append("<label>Nombre:</label><input type='text' id='nom'>");
+             respCargDatos.append("<label>Municipio:</label><input type='text' id='mu'>");
+             respCargDatos.append("<label>Direccion:</label><input type='text' id='di'>");
+             respCargDatos.append("<label>Giro:</label><input type='text' id='gi'>");
+             respCargDatos.append("<label>Fotografia:</label><input type='text' id='fo'>");
+             respCargDatos.append("<label>Altitud:</label><input type='text' id='al'>");
+             respCargDatos.append("<label>Latitud:</label><input type='text' id='la'>");
+             var Id=$("#Id");
+             var nom=$("#nom");
+             var mu=$("#mu");
+             var di=$("#di");
+             var gi=$("#gi");
+             var fo=$("#fo");
+             var al=$("#al");
+             var la=$("#la");
+             for(var i in consDatAct){
+                 Id.val(consDatAct[i].id);
+                 nom.val(consDatAct[i].Nombre);
+                 mu.val(consDatAct[i].Municipio);
+                 di.val(consDatAct[i].Direccion);
+                 gi.val(consDatAct[i].Giro);
+                 fo.val(consDatAct[i].Fotografia);
+                 al.val(consDatAct[i].Altitud);
+                 la.val(consDatAct[i].Latitud);
+             }
+         }
+     });
+     //quitar
+     
+     
+var btnGuarDatos=$("#btnGuarDatos");
+            btnGuarDatos.click(function actual(){
+                var id=parseInt($("#Id").val());
+                var nombre=$("#nom").val();
+                var municipio=$("#mu").val();
+                var direccion=$("#di").val();
+                var giro=$("#gi").val();
+                var fotografia=$("#fo").val();
+                var altitud=$("#al").val();
+                var latitud=$("#la").val();
+                if (nombre=="" || municipio=="" || direccion=="" || giro=="" || fotografia=="" || altitud=="" || latitud=="") {
+                    alert("Ingresa informaciónen todos los campos ");
+                }
+                else{
+                    $.ajax({
+                        type:"POST",
+                        url:"http://martha13valadez.260mb.net/actualizar.php",
+                        data:"id="+id+"&nombre="+nombre+"&municipio="+municipio+"&direccion="+direccion+"&giro="+giro+"&fotografia="+fotografia+"&altitud="+altitud+"&latitud="+latitud,
+                        success:actualizacion
+                    });
+                    }
+                     function actualizacion(datos){
+                        alert("datos:"+datos);
+                }
+                });
+                var btnConEliminar=$("#btnConEliminar");
+                btnConEliminar.click(function conEliminar(){
+                    $.ajax({
+                        type:"POST",
+                        url:"http://martha13valadez.260mb.net/consultaBD.php",
+                        data:"",
+                        success:consultaAntEliminar
+                    
+                });
+                function consultaAntEliminar(datos){
+                    var datAntEliminar=$.parseJSON(datos);
+                    var respConElim=$("#respConElim");
+                    dibujarTabla(respConElim,datAntEliminar);
+                }
+                });
+                var btnEliminar=$("#btnEliminar");
+                btnEliminar.click(function eliminarDato(){
+                var idEliminar=parseInt($("#idEliminar").val());
+                $.ajax({
+                        type:"POST",
+                        url:"http://martha13valadez.260mb.net/eliminarDatos.php",
+                        data:"id="+idEliminar,
+                        success:Eliminacion
+                });
+                function Eliminacion(datos){
+                    alert(datos);
+                    
+                }
+                });
+                
+                /*CAMARA*/
+                $(document).ready(function(){
+	document.addEventListener("deviceready", function(){
+		$('#regFoto').tap(function(){
+			navigator.device.capture.captureImage(function(mediaFiles){
+			path = mediaFiles[0].fullPath;
+			$('#Foto').append('<br><img src="'+path+'" width="100%" />').attr('rel',path);
+			},function(error){
+			navigator.notification.alert('Error code: ' + error.code, null, 'Capture Error');
+			},{limit:1});
+		});
+	}, false);
+});
+        });
+</script>
+<style>
+    p{
+        text-align: center;
+        color: black;
+      
+    }
+    #p1{
+        text-align: center;
+        color: red;
+        
+    }
+    
+    #p2{
+        text-align: center;
+        color: red;
+        
+    }
+    #p3{
+        text-align: center;
+        color: red;
+        
+    }
+    #li1{
+        text-align: center;
+        color: red;
+     font-size: 25px;
+        
+    }
+    #nombre{
+        background:palegreen;
+        border: 4px solid cyan;
+    }
+    #edad{
+        background: plum;
+        border: 4px solid red;
+    }
+    #promedio{
+        background: pink;
+        border: 4px solid red;
+    }
+    #guardar{
+    
+        background:brown;
+        border: 4px solid red;
+        
+    }
+    #consultar2{
+        border: 4px solid yellow;
+    }
+    #nomActualizar{
+         background: palegreen;
+        border: 4px solid cyan;
+        
+    }
+    #direccion{
+        background:palegreen;
+        border: 4px solid cyan;
+        
+    }
+    #municipio{
+        background:palegreen;
+        border: 4px solid cyan;
+        
+    }
+    #giro{
+        background:palegreen;
+        border: 4px solid cyan;
+        
+    }
+    #latitud{
+        background:palegreen;
+        border: 4px solid cyan;
+        
+    }
+    #altitud{
+        background:palegreen;
+        border: 4px solid cyan;
+        
+    }
+    #fotografia{
+        background:palegreen;
+        border: 4px solid cyan;
+        
+    }
+    #valConsulta{
+        background:palegreen;
+        border: 4px solid cyan;
+        
+    }
+      #idEliminar{
+        background:palegreen;
+        border: 4px solid cyan;
+        
+    }
+    #cuerpo{
+        background-image:url(fondo.jpg);
+        background-color: orangered;
+        
+    }
+   
+</style>
+
+    </head>
+    <body  id=" cuerpo" background="images/fondo.jpg">
+
+
+        <!--Presentacion---->
+          <div data-role="page" id="presentacion" >
+            <div data-role="header">
+                <p>LOCALIZACIÓN DE NEGOCIOS
+                </p>
+            </div>
+            <div data-role="content">
+                <div>
+                    <ul data-role="listview">
+                        <li ><a id="li1" href="#principal">ENTRAR</a></li>
+                        
+                    </ul>
+                </div>
+                </div>
+            <div data-role="footer">
+               <img style="float:center"  src="images/logo6.png" border="10" width="700" height="60" >
+                <p id="p1">Integrantes:</p>        
+                <p >Alejandro Castro Palacios</p>  
+                <p>Lizbeth Cervante Ramírez</p>  
+                <p>Andrea Valadez Flores</p>
+                <p>Martha Valadez Romero</p>  
+                 <p id="p2">Materia:</p>
+                  <p>Desarrollo de aplicaciones Móviles</p>
+                   <p id="p3">Docente:</p>
+                    <p>Ing.Alejandro Gúzman Rodríguez</p>
+                <img src="images/logo1.png" border="10" width="110" height="110">
+                   <img src="images/logo3.png" border="10" width="110" height="110" align="right">
+                
+            </div>
+            </div>
+        
+        <!----------------->
+        <div data-role="page" id="principal" >
+             <img  style="float:right" src="images/fondo.jpg"  width="200" height="260">
+            <div data-role="header">
+                
+                <p>Datos de dulcerias
+                </p>
+            </div>
+            <div data-role="content">
+                <div>
+                    
+                    <ul data-role="listview">
+                        <li><a href="#registro">Registrar Dulceria</a></li>
+                        <li><a href="#consulta">Consultar Todas Las Dulcerias</a></li>
+                        <li><a href="#consulta2">Consultar Dulceria Especifica</a></li>
+                         <li><a href="#actualizar">Actualizar Datos De Dulceria</a></li>
+                         <li><a href="#eliminar">Eliminar Dulceria</a></li>
+                    </ul>
+                </div>
+                </div>
+    
+            <div data-role="footer">
+                
+                <p>Derechos reservados</p>
+                 <img   src="images/xy.jpg"  width="250" height="250" align="center">
+            </div>
+            </div>
+        <div data-role="page" id="registro" >
+            <div data-role="header">
+                  <img  style="float:right" src="images/1111.gif"  width="190" height="190">
+                <p>Registrar Dulceria
+                   
+                </p>
+                
+            </div>
+            <div data-role="content">
+                <ul data-role="listview" data-inset="true" data-dividertheme="b" data-theme="a">
+        	<li data-role="list-divider">Datos Usuario</li>
+		<li><input type="text" id="nombre" placeholder="Nombre " /></li>
+		<li><input type="email" id="direccion" placeholder="Direccion" /></li>
+		<li><input type="tel" id="municipio" placeholder="Municipio" /></li>
+                
+                <li><input type="tel" id="giro" placeholder="Giro" /></li>
+                <li><input type="tel" id="latitud" placeholder="latitud" /></li>
+                <li><input type="tel" id="altitud" placeholder="Altitud" /></li>
+		<li><a href="#" id="regFoto">Tomar Foto</a></li>
+		<li><div id="Foto"></div></li>
+        </ul>
+                <a href="#" data-role="button" id="guardar" data-theme="a">Registrar</a>
+                <!--label for="nombre">Nombre: </label>
+                <input type="text" id="nombre">
+                
+                <label for="direccion">Direccion: </label>
+                <input type="text" id="direccion">
+                
+                <label for="municipio">Municipio: </label>
+                <input type="text" id="municipio">
+                    
+                <label for="giro">Giro: </label>
+                <input type="text" id="giro">
+                   
+	  <ul data-role="listview" data-inset="true" data-dividertheme="b" data-theme="a">
+		<li><a href="#" id="regFoto">Tomar Foto</a></li>
+		<li><div id="Foto"></div></li>
+        </ul>
+                
+        	<a href="#" data-role="button" id="guardar" data-theme="a">Guardar</a> 
+                <!--label for="fotografia">Capturar Fotografia: </label-->
+                
+                
+        <!--div data-role="page" id="Registro">
+	<div data-role="header">
+		
+	</div>
+	<div data-role="content">	
+	
+        </div>
+</div--> 
+                    
+                <!--label for="latitud">Obtener Latitud: </label>
+                <input type="text" id="latitud">
+                    
+                <label for="altitud">Obtener Altitud: </label>
+                <input type="text" id="altitud">  
+                <p></p>
+                
+                <!--input type="button" id="guardar" value="Guardar"-->
+            </div>
+            <div data-role="footer">
+                <p>Derechos reservados</p>
+               
+            </div>
+        </div>
+        <!--CONSULTA TODOS---->
+         <div data-role="page" id="consulta" >
+            <div data-role="header">
+               <img  style="float:right" src="images/222.gif"  width="190" height="190">
+                <p>Consultar todas las Dulcerias
+                   </p>
+                
+            </div>
+            <div data-role="content">
+             
+                
+                <input type="button" id="consultar" value="consultar">
+                <div id="resconsulta"> </div>
+            </div>
+          
+            <div data-role="footer">
+                <p>Derechos reservados</p>
+                    
+                <!--div align="center"><img src="images/descarga4.jpg" border="10"></div-->
+                <p>
+                   
+                </p>
+            </div>
+             </div>
+             
+        <!--CONSULTAR UNO--->
+               <div data-role="page" id="consulta2" >
+            <div data-role="header">
+                <img  style="float:right" src="images/222.gif"  width="190" height="250">
+                <p>Consultar Dulceria especifica
+                </p>
+            </div>
+            <div data-role="content">
+                <label for="valConsulta" id="label">ID DE Dulceria:</label>
+                <input type="text" id="valConsulta">
+                
+                <input type="button" id="consultar2" value="consultar">
+                <div id="resconsulta2"> </div>
+            </div>
+            <div data-role="footer">
+                <p>Derechos reservados</p>
+                 
+            </div>
+                   
+               </div>
+             <!--ACTUALIZAR--->
+                   
+         <div data-role="page" id="actualizar" >
+            <div data-role="header">
+                    <img  style="float:right" src="images/88.gif"  width="190" height="250">
+                <p>Actualizar registros de Dulcerias
+                </p>
+            </div>
+            <div data-role="content">
+                <input type="button" id="btnConAct" value="Mostrar todos los registros de las Dulcerias" >
+                <div id="respConAct"></div>
+                <p></p>
+                <label for="nomActualizar">ID a actualizar:</label>
+                <input type="text" id="nomActualizar">
+                <input type="button" id="btnCarDatos" value="Cargar Datos">
+                <div id="respCargDatos"></div>
+                <input type="button" id="btnGuarDatos" value="Guadar Datos">
+                        </div>
+            <div data-role="footer">
+                <p>Derechos reservados</p>
+            </div>
+            </div>
+                <!--ELIMINAR-->
+                <div data-role="page" id="eliminar" >
+            <div data-role="header">
+                    <img  style="float:right" src="images/x.gif"  width="190" height="250">
+                <p>eliminar registros de Dulcerias
+                </p>
+            </div>
+            <div data-role="content">
+                <input type="button" id="btnConEliminar" value="Mostrar todos los registros todo">
+                <div id="respConElim"></div>
+                <p></p>
+                <label for="idEliminar">ID de Dulceria a  eliminar:</label>
+                <input type="text" id="idEliminar">
+               
+                <input type="button" id="btnEliminar" value="Eliminar Registro">
+                  </div>    
+            <div data-role="footer">
+                <p>Derechos reservados</p>
+            </div>
+            </div>
+                 
+                
+            
+    </body>
+</html>

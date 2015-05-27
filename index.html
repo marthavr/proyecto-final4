@@ -19,8 +19,51 @@ and open the template in the editor.
 <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
 <script type="text/javascript">
     $(document).ready(function inicio(){
-       
+        
+    document.addEventListener("deviceready", function  (){   
+    alert("listo");
+    //Colocar  evnto de boton p/E:
+     var btnObtenercord=$("#btnObtener");
      
+    btnObtenercord.tap(function (){
+    navigator.geolocation.getCurrentPosition(onSuccess,onError);
+     var  defaultPos=new google.maps.LatLng(19.467703, -97.687591);
+    if(navigator.geolocation){
+    
+	function exito(pos){
+        $("#txtlat").val(pos.coords.latitude);   
+        $("#txtlong").val(pos.coords.longitude); 
+	//  MuestraMapa(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude));	  
+	}
+	
+	function falla(error){
+	  alert("Error en el servicio Geolocalizador");
+	 // MuestraMapa(defaultPos);
+	}
+	
+	var options={maximumAge:500000,enableHighAccuracy:true,timeout:5000};
+	navigator.geolocation.getCurrentPosition(exito, falla, options);
+	
+        
+    }else{
+        
+	//MuestraMapa(defaultPos);
+    }
+    });
+
+    
+   
+    
+        
+    $('#regFoto').tap(function(){
+			navigator.device.capture.captureImage(function(mediaFiles){
+			path = mediaFiles[0].fullPath;
+			$('#Foto').append('<br><img src="'+path+'" width="100%" />').attr('rel',path);
+			},function(error){
+			navigator.notification.alert('Error code: ' + error.code, null, 'Capture Error');
+			},{limit:1});
+		});
+                
      var btnGuardar=$("#guardar");
      btnGuardar.click(function guardar(){
          var nom=$("#nombre").val();
@@ -28,13 +71,13 @@ and open the template in the editor.
          var dire=$("#direccion").val();
          var gir=$("#giro").val();
          var foto=$("#fotografia").val();
-         var alt=$("#altitud").val();
-         var lat=$("#latitud").val();
+         var alt=$("#txtlat").val();
+         var lat=$("#txtlong").val();
          
          $.ajax({
              type:"POST",
-             url:"http://martha13valadez.260mb.net/guardarDatos.php",
-             data:"nombre="+nom+"&municipio="+muni+"&direccion="+dire+"&giro="+gir+"&fotografia="+foto+"&altitud="+alt+"&latitud="+lat,
+             url:"guardarDatos.php",
+             data:"nombre="+nom+"&municipio="+muni+"&direccion="+dire+"&giro="+gir+"&fotografia="+foto+"&txtlat="+alt+"&txtlong="+lat,
              success:registro
              
          });
@@ -46,7 +89,7 @@ and open the template in the editor.
      btnConsulta.click(function cons(){
          $.ajax({
              type:"POST",
-             url:"http://martha13valadez.260mb.net/consultaBD.php",
+             url:"consultaBD.php",
              data:"",
              success:consultaDatos
          });
@@ -82,7 +125,7 @@ and open the template in the editor.
       var valConsulta=$("#valConsulta").val();
       $.ajax({
           type:"POST",
-          url:"http://martha13valadez.260mb.net/consultaBD2.php",
+          url:"consultaBD2.php",
           data:"Id="+valConsulta,
           success:consultaNegocio
           
@@ -91,7 +134,21 @@ and open the template in the editor.
              var respDatos2=$.parseJSON(datos);
              //alert(datos);
               var respuesta2=$("#resconsulta2");
-              dibujarTabla(respuesta2,respDatos2);
+             respuesta2.html("");
+              respuesta2.append('<table id="tabx" border="1">');
+              var tabla=$("#tabx");
+              tabla.html("<tr><th> ID</th><th>Nombre</th><th>Municipio</th><th>Direccion</th><th>Giro</th><th>Fotografia</th><th>Altitud</th><th>Latitud</th></tr>");
+              for(var i in respDatos2){
+                  tabla.append("<tr><td>"+respDatos2[i].id+"</td>"
+                 +"<td>"+respDatos2[i].Nombre+"</td>"
+                 +"<td>"+respDatos2[i].Municipio+"</td>"
+                 +"<td>"+respDatos2[i].Direccion+"</td>"
+                 +"<td>"+respDatos2[i].Giro+"</td>"
+                 +"<td>"+respDatos2[i].Fotografia+"</td>"
+                 +"<td>"+respDatos2[i].Altitud+"</td>"
+                 +"<td>"+respDatos2[i].Latitud+"</td></tr>");
+              }
+              tabla.append("</table>");
               
         } 
      });
@@ -99,22 +156,36 @@ and open the template in the editor.
     btnConAct.click(function cargarDat(){
      $.ajax({
              type:"POST",
-             url:"http://martha13valadez.260mb.net/consultaBD.php",
+             url:"consultaBD.php",
              data:"",
              success:cargarDatos
          }); 
          function cargarDatos(datos){
              var respCarga=$.parseJSON(datos);
              var respConAct=$("#respConAct");
-             dibujarTabla(respConAct,respCarga);
-         }
+             respConAct.html("");
+              respConAct.append('<table id="tab4" border="1">');
+              var tabla=$("#tab4");
+              tabla.html("<tr><th> ID</th><th>Nombre</th><th>Municipio</th><th>Direccion</th><th>Giro</th><th>Fotografia</th><th>Altitud</th><th>Latitud</th></tr>");
+              for(var i in respCarga){
+                  tabla.append("<tr><td>"+respCarga[i].id+"</td>"
+                 +"<td>"+respCarga[i].Nombre+"</td>"
+                 +"<td>"+respCarga[i].Municipio+"</td>"
+                 +"<td>"+respCarga[i].Direccion+"</td>"
+                 +"<td>"+respCarga[i].Giro+"</td>"
+                 +"<td>"+respCarga[i].Fotografia+"</td>"
+                 +"<td>"+respCarga[i].Altitud+"</td>"
+                 +"<td>"+respCarga[i].Latitud+"</td></tr>");
+              }
+              tabla.append("</table>");
+          }
     });
      var btnCarDatos=$("#btnCarDatos");
      btnCarDatos.click(function cargarInf(){
          var Id=parseInt($("#nomActualizar").val());
          $.ajax({
              type:"POST",
-             url:"http://martha13valadez.260mb.net/consultaBD2.php",
+             url:"consultaBD2.php",
              data:"Id="+Id,
              success:cargarDatosAct
              
@@ -169,7 +240,7 @@ var btnGuarDatos=$("#btnGuarDatos");
                 else{
                     $.ajax({
                         type:"POST",
-                        url:"http://martha13valadez.260mb.net/actualizar.php",
+                        url:"actualizar.php",
                         data:"id="+id+"&nombre="+nombre+"&municipio="+municipio+"&direccion="+direccion+"&giro="+giro+"&fotografia="+fotografia+"&altitud="+altitud+"&latitud="+latitud,
                         success:actualizacion
                     });
@@ -182,7 +253,7 @@ var btnGuarDatos=$("#btnGuarDatos");
                 btnConEliminar.click(function conEliminar(){
                     $.ajax({
                         type:"POST",
-                        url:"http://martha13valadez.260mb.net/consultaBD.php",
+                        url:"consultaBD.php",
                         data:"",
                         success:consultaAntEliminar
                     
@@ -190,15 +261,29 @@ var btnGuarDatos=$("#btnGuarDatos");
                 function consultaAntEliminar(datos){
                     var datAntEliminar=$.parseJSON(datos);
                     var respConElim=$("#respConElim");
-                    dibujarTabla(respConElim,datAntEliminar);
-                }
+                     respConElim.html("");
+              respConElim.append('<table id="tab5" border="1">');
+              var tabla=$("#tab5");
+              tabla.html("<tr><th> ID</th><th>Nombre</th><th>Municipio</th><th>Direccion</th><th>Giro</th><th>Fotografia</th><th>Altitud</th><th>Latitud</th></tr>");
+              for(var i in datAntEliminar){
+                  tabla.append("<tr><td>"+datAntEliminar[i].id+"</td>"
+                 +"<td>"+datAntEliminar[i].Nombre+"</td>"
+                 +"<td>"+datAntEliminar[i].Municipio+"</td>"
+                 +"<td>"+datAntEliminar[i].Direccion+"</td>"
+                 +"<td>"+datAntEliminar[i].Giro+"</td>"
+                 +"<td>"+datAntEliminar[i].Fotografia+"</td>"
+                 +"<td>"+datAntEliminar[i].Altitud+"</td>"
+                 +"<td>"+datAntEliminar[i].Latitud+"</td></tr>");
+              }
+              tabla.append("</table>");
+          }
                 });
                 var btnEliminar=$("#btnEliminar");
                 btnEliminar.click(function eliminarDato(){
                 var idEliminar=parseInt($("#idEliminar").val());
                 $.ajax({
                         type:"POST",
-                        url:"http://martha13valadez.260mb.net/eliminarDatos.php",
+                        url:"eliminarDatos.php",
                         data:"id="+idEliminar,
                         success:Eliminacion
                 });
@@ -209,44 +294,33 @@ var btnGuarDatos=$("#btnGuarDatos");
                 });
                 
                 /*CAMARA*/
-            $(document).ready(function(){
-	document.addEventListener("deviceready", function  (){
-		$('#regFoto').tap(function(){
+            //$(document).ready(function(){
+	//document.addEventListener("deviceready", function  (){
+		/*$('#regFoto').tap(function(){
 			navigator.device.capture.captureImage(function(mediaFiles){
 			path = mediaFiles[0].fullPath;
 			$('#Foto').append('<br><img src="'+path+'" width="100%" />').attr('rel',path);
 			},function(error){
 			navigator.notification.alert('Error code: ' + error.code, null, 'Capture Error');
 			},{limit:1});
-		});
+		});*/
 	}, false);
-});
-        });
         
-        /*mapa*/
-        $(document).on("pageinit","#PaginaMapa", function(e, data){
-
-    var  defaultPos=new google.maps.LatLng(19.467703, -97.687591);
-    if(navigator.geolocation){
-    
-	function exito(pos){	
-	  MuestraMapa(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude));	  
-	}
-	
-	function falla(error){
-	  alert("Error en el servicio Geolocalizador");
-	  MuestraMapa(defaultPos);
-	}
-	
-	var options={maximumAge:500000,enableHighAccuracy:true,timeout:5000};
-	navigator.geolocation.getCurrentPosition(exito, falla, options);
-	
-    }else{
-	MuestraMapa(defaultPos);
-    }
-    
-    //funcion para dibujar el mapa
-    function MuestraMapa(latlng){
+        //colocar otras funciones
+        
+  function onSuccess(ubicacion){
+       var elemento=document.getElementById("resultado");
+       elemento.innerHTML="Latitud:"+ubicacion.coords.latitude+"<br>"+
+        "Longitud:"+ubicacion.coords.longitude+"<br>"+       
+        "Altitud:"+ubicacion.coords.altitude+"<br>"+  
+        "Timestamp:"+ubicacion.coords.timestamp+"<br>";
+   }
+   function onError(error){
+       alert("codigo:"+error.code+"Mensaje:"+error.message);
+       
+   }
+   
+   function MuestraMapa(latlng){
     var myOptions={
     zoom:16,
     center:latlng,
@@ -268,24 +342,9 @@ var btnGuarDatos=$("#btnGuarDatos");
     
     google.maps.event.addListener(marker,"click", function(){infowindow.open(map, marker);});
    } 
-  });
-  
-  /* coordenadas*/
-  document.addEventListener("deviceready",onDeviceReady,false);
-   function onDeviceReady(){
-       navigator.geolocation.getCurrentPosition(onSuccess,onError);
-   }
-   function onSuccess(ubicacion){
-       var elemento=document.getElementById("resultado");
-       elemento.innerHTML="Latitud:"+ubicacion.coords.latitude+"<br>"+
-        "Longitud:"+ubicacion.coords.longitude+"<br>"+       
-        "Altitud:"+ubicacion.coords.altitude+"<br>"+  
-        "Timestamp:"+ubicacion.coords.timestamp+"<br>";
-   }
-   function onError(error){
-       alert("codigo:"+error.code+"Mensaje:"+error.message);
+        
+});
        
-   }
 </script>
 <style>
     p{
@@ -485,10 +544,13 @@ var btnGuarDatos=$("#btnGuarDatos");
 		<li><input type="tel" id="municipio" placeholder="Municipio" /></li>
                 
                 <li><input type="tel" id="giro" placeholder="Giro" /></li>
-                <li><input type="tel" id="latitud" placeholder="latitud" /></li>
-                <li><input type="tel" id="altitud" placeholder="Altitud" /></li>
+                <!---li><input type="tel" id="latitud" placeholder="latitud" /></li-->
+                <!---li><input type="tel" id="altitud" placeholder="Altitud" /></li-->
 		<li><a href="#" id="regFoto">Tomar Foto</a></li>
 		<li><div id="Foto"></div></li>
+                <li><input type="tel" id="txtlat" placeholder="latitud" /></li>
+                <li><input type="tel" id="txtlong" placeholder="Altitud" /></li>
+                <a href="#" data-role="button" id="btnObtener" data-theme="a">Mostrar coordenadas</a>
         </ul>
                 <a href="#" data-role="button" id="guardar" data-theme="a">Registrar</a>
               
@@ -608,7 +670,7 @@ var btnGuarDatos=$("#btnGuarDatos");
       <div data-role="content">  
           <div id="map-canvas"></div>
            
-            
+             <input type="button" id="btnObtener" value="Mostrar ubicacion"> 
       </div>
      
   </div>
@@ -618,9 +680,14 @@ var btnGuarDatos=$("#btnGuarDatos");
             <div data-role="header">
       <div id="resultado">COORDENADAS DE UBICACIÓN</div>
 
+
      <div data-role="content">  
-      <a href="#principal" data-role="button" data-add-back-btn="true" data-icon="home">Regresar Al Menú</a>           
-                </div>
+      <a href="#principal" data-role="button" data-add-back-btn="true" data-icon="home">Regresar Al Menú</a>      
+      
+    
+                  </div> 
+                     
+                  </div>  
      
   </div>
     </body>
